@@ -63,7 +63,7 @@ export function Layout() {
             </div>
 
             <div className="flex items-center space-x-4">
-              <span className="text-gray-600">@{user?.username}</span>
+              <span className="text-gray-600">{user?.username}</span>
               <button
                 onClick={handleLogout}
                 className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md transition-colors"
