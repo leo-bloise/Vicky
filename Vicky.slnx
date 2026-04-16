@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Vicky.API/Vicky.API.csproj" />
+  <Project Path="Vicky.Common/Vicky.Common.csproj" />
+  <Project Path="Vicky.Ledger/Vicky.Ledger.csproj" />
+  <Project Path="Vicky.Users/Vicky.Users.csproj" />
+</Solution>

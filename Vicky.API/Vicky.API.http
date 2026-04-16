@@ -1,0 +1,6 @@
+@Vicky.API_HostAddress = http://localhost:5036
+
+GET {{Vicky.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

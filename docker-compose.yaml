@@ -1,0 +1,11 @@
+services:
+  database:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: vicky
+      POSTGRES_PASSWORD: vicky
+      POSTGRES_DB: vicky
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./Migrations:/docker-entrypoint-initdb.d
