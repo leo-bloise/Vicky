@@ -1,6 +1,6 @@
 # Vicky - Ledger Management System
 
-Vicky is a backend application designed to manage personal or small business ledger records. It allows users to manage counterparties and track transactions with them.
+Vicky is a full-stack application designed to manage personal or small business ledger records. It allows users to manage counterparties and track transactions with them. The application consists of a .NET backend API and a React frontend.
 
 ## 🚀 Features
 
@@ -8,6 +8,7 @@ Vicky is a backend application designed to manage personal or small business led
 - **Counterparty Management:** Create and manage counterparties (e.g., vendors, clients).
 - **Transaction Tracking:** Record transactions with specific amounts and dates associated with counterparties.
 - **Filtering:** Query transactions by date range.
+- **Web Interface:** User-friendly React-based frontend for interacting with the API.
 - **Domain-Driven Design (DDD) Influence:** Separation of concerns between API, Users, Ledger, and Common modules.
 
 ## 🛠️ Project Structure
@@ -16,11 +17,13 @@ Vicky is a backend application designed to manage personal or small business led
 - **Vicky.Users:** Handles user registration, login, and authentication logic.
 - **Vicky.Ledger:** Core domain for counterparties and transactions.
 - **Vicky.Common:** Shared logic, logging, and common exceptions.
+- **Vicky.FrontEnd:** React-based frontend application built with Vite and TypeScript.
 - **Migrations:** SQL scripts for setting up the PostgreSQL database.
 
 ## ⚙️ Prerequisites
 
 - **.NET 10 SDK**
+- **Node.js** (version 18 or higher) and npm (or bun)
 - **Docker & Docker Compose**
 - **PostgreSQL** (running via Docker)
 
@@ -45,7 +48,18 @@ cd Vicky.API
 dotnet run
 ```
 
-The API will be available at `http://localhost:5037` (or as configured in `launchSettings.json`).
+The API will be available at `http://localhost:5036` (or as configured in `launchSettings.json`).
+
+### 3. Run the Frontend
+
+In a new terminal, navigate to the frontend project and start the development server:
+
+```bash
+cd Vicky.FrontEnd
+npm run dev
+```
+
+The frontend will be available at `http://localhost:5173` (default Vite port).
 
 ## 🧪 API Endpoints
 
@@ -63,7 +77,10 @@ The API will be available at `http://localhost:5037` (or as configured in `launc
 
 ## 🔧 Technology Stack
 
-- **Runtime:** .NET 10
+- **Backend Runtime:** .NET 10
+- **Frontend Framework:** React with TypeScript
+- **Build Tool:** Vite
+- **UI Library:** Radix UI
 - **Database:** PostgreSQL
 - **ORM:** Dapper
 - **Authentication:** JWT Bearer
