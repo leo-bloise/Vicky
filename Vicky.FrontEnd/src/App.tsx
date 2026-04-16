@@ -1,9 +1,11 @@
-import './App.css'
+import { RouterProvider } from 'react-router';
+import { AuthProvider } from './contexts/AuthContext';
+import { router } from './routes';
 
-function App() {
+export default function App() {
   return (
-    <h1> Hello World </h1>
-  )
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
-
-export default App

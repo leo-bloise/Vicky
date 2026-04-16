@@ -24,7 +24,10 @@ internal static class CorsBuilder
         {
             options.AddDefaultPolicy(policy =>
             {
-                policy.WithOrigins(corsOptions.Origins);
+                policy.WithOrigins(corsOptions.Origins)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
             });
         });
 
