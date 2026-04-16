@@ -2,8 +2,8 @@ import { createBrowserRouter, Navigate } from 'react-router';
 import { Login } from './components/Login';
 import { Register } from './components/Register';
 import { Layout } from './components/Layout';
-import { MonthReport } from './components/MonthReport';
-import { Transactions } from './components/Transactions';
+import { MonthReportContainer } from './components/MonthReportContainer';
+import { TransactionsContainer } from './components/TransactionsContainer';
 import { Counterparties } from './components/Counterparties';
 import { useAuth } from './contexts/AuthContext';
 
@@ -54,11 +54,11 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <MonthReport />,
+        element: <MonthReportContainer />,
       },
       {
         path: 'transactions',
-        element: <Transactions />,
+        element: <TransactionsContainer />,
       },
       {
         path: 'counterparties',
