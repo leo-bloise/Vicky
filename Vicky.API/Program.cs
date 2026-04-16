@@ -60,11 +60,8 @@ public class Program
         builder
             .AddJwtAuthentication();
 
-        builder.Services
-            .AddControllers(options =>
-            {
-                options.Filters.Add<DomainExceptionFilter>();
-            });
+        builder
+            .ConfigureValidationErrorResponse();
     
         builder.Services.AddSingleton<IVickyLoggerFactory, VickyLoggerFactory>();
     
