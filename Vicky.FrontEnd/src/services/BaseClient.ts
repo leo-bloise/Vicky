@@ -35,6 +35,14 @@ export abstract class BaseClient {
         this.headers = headers;
     }
 
+    public setToken(token: string) {
+        this.token = token;
+        this.headers = {
+            'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` })
+        };
+    }
+
     protected async tryParse(response: Response): Promise<unknown | string> {
         try {
             return response.json();

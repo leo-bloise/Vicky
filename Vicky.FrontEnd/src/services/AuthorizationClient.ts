@@ -72,14 +72,6 @@ export class AuthorizationClient extends BaseClient {
         return (payload as SuccessResponse<{id: string, username: string}>).data;
     }
 
-    public setToken(token: string) {
-        this.token = token;
-        this.headers = {
-            'Content-Type': 'application/json',
-            ...(token && { 'Authorization': `Bearer ${token}` })
-        };
-    }
-
     public getToken(): string | null {
         return this.token;
     }

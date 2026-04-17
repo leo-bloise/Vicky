@@ -3,6 +3,8 @@ export type User = {
   username: string;
 }
 
+import type { ClientFactory } from '../../services/ClientFactory';
+
 export type AuthState = {
   user: User | null;
   isLoading: boolean;
@@ -34,4 +36,5 @@ export type AuthContextType = {
   register: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isAuthenticated(): boolean;
+  clientFactory: ClientFactory;
 }

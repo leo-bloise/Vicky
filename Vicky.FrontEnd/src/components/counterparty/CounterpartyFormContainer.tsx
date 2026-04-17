@@ -10,11 +10,12 @@ export const counterpartySchema = z.object({
 export type CounterpartyFormData = z.infer<typeof counterpartySchema>;
 
 interface CounterpartyFormContainerProps {
-  onSubmit: (data: CounterpartyFormData) => void;
+  onSubmit: (data: CounterpartyFormData) => Promise<void>;
   onCancel: () => void;
+  disabled?: boolean;
 }
 
-export function CounterpartyFormContainer({ onSubmit, onCancel }: CounterpartyFormContainerProps) {
+export function CounterpartyFormContainer({ onSubmit, onCancel, disabled = false }: CounterpartyFormContainerProps) {
   const {
     register,
     handleSubmit,
@@ -27,10 +28,14 @@ export function CounterpartyFormContainer({ onSubmit, onCancel }: CounterpartyFo
     },
   });
 
-  const onFormSubmit = handleSubmit((data) => {
-    onSubmit(data);
-    reset();
+  const onFormSubmit = handleSubmit(async (data) => {
+    try {
+      await onSubmit(data);
+      reset(); // Only reset on successful submission
+    } catch (error) {
+      // Don't reset on error - let the user correct and try again
+    }
   });
 
-  return <CounterpartyForm register={register} errors={errors} onSubmit={onFormSubmit} onCancel={onCancel} />;
+  return <CounterpartyForm register={register} errors={errors} onSubmit={onFormSubmit} onCancel={onCancel} disabled={disabled} />;;
 }
