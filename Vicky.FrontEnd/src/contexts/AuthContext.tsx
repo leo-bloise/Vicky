@@ -22,7 +22,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
     case AuthActionType.SET_USER:
       return { ...state, user: action.payload, error: null };
     case AuthActionType.SET_ERROR:
-      return { ...state, error: action.payload };
+      return { ...state, error: action.payload, isLoading: false };
     case AuthActionType.LOGIN_SUCCESS:
       return { ...state, user: action.payload, isLoading: false, error: null };
     case AuthActionType.LOGIN_FAILURE:

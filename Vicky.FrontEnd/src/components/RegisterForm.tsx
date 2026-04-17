@@ -84,7 +84,7 @@ export function RegisterForm({ register, errors, isLoading, onSubmit }: Register
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isLoading ? 'Registering...' : 'Register'}
           </button>
