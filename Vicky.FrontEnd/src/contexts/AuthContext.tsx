@@ -2,7 +2,8 @@ import { createContext, useContext, useReducer, useEffect, useCallback } from 'r
 import type { ReactNode } from 'react';
 import { AuthActionType } from './types/auth-types';
 import type { AuthState, AuthAction, AuthContextType } from './types/auth-types';
-import { ApiClient } from '../services/ApiClient';
+import { AuthorizationClient } from '../services/AuthorizationClient';
+import { ClientFactory } from '../services/ClientFactory';
 import type { LoginRequest } from '../services/requests/login-request';
 import type { RegisterRequest } from '../services/requests/register-request';
 import type { ProfileResponseData } from '../services/responses/profile-response';
@@ -36,8 +37,9 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const apiClient = new ApiClient(import.meta.env.VITE_API_URL || 'http://localhost:8080');
-
+  const clientFactory = new ClientFactory(import.meta.env.VITE_API_URL || 'http://localhost:8080');
+  const authorizationClient = clientFactory.createAuthorizationClient();
+  
   useEffect(() => {
     const token = localStorage.getItem('vickyToken');
 
@@ -46,15 +48,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    apiClient.setToken(token);
+    clientFactory.setToken(token);
+
+    authorizationClient.setToken(token);
 
     const fetchProfile = async () => {
       try {
-        const profile = await apiClient.getProfile() as ProfileResponseData;
+        const profile = await authorizationClient.getProfile() as ProfileResponseData;
         dispatch({ type: AuthActionType.SET_USER, payload: profile });
       } catch (error) {
         localStorage.removeItem('vickyToken');
         dispatch({ type: AuthActionType.SET_ERROR, payload: 'Session expired. Please log in again.' });
+        clientFactory.setToken(null);
       } finally {
         dispatch({ type: AuthActionType.SET_LOADING, payload: false })
       }
@@ -73,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const request: RegisterRequest = { username, password };
-      await apiClient.register(request);
+      await authorizationClient.register(request);
 
       dispatch({ type: AuthActionType.SET_LOADING, payload: false });
       return { success: true };
@@ -90,27 +95,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const request: LoginRequest = { username, password };
-      const response = await apiClient.login(request);
+      const response = await authorizationClient.login(request);
       const token = response.data.token.payload;
-      apiClient.setToken(token);
+  
+      authorizationClient.setToken(token);
+      clientFactory.setToken(token);
       localStorage.setItem('vickyToken', token);
+  
       dispatch({ type: AuthActionType.LOGIN_SUCCESS, payload: { id: username, username } });
+  
       return true;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
+  
       dispatch({ type: AuthActionType.LOGIN_FAILURE, payload: errorMessage });
+  
       return false;
     }
   };
 
   const logout = () => {
     localStorage.removeItem('vickyToken');
-    apiClient.setToken(''); // Clear token from API client
+  
+    authorizationClient.setToken('');
+    clientFactory.setToken(null);
+  
     dispatch({ type: AuthActionType.LOGOUT });
   };
 
   return (
-    <AuthContext.Provider value={{ state, login, register, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ state, login, register, logout, isAuthenticated, clientFactory }}>
       {children}
     </AuthContext.Provider>
   );
@@ -122,4 +136,16 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+}
+
+export function useAuthorizationClient() {
+  const { clientFactory } = useAuth();
+
+  return clientFactory.createAuthorizationClient();
+}
+
+export function useCounterpartiesClient() {
+  const { clientFactory } = useAuth();
+  
+  return clientFactory.createCounterpartiesClient();
 }

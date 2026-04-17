@@ -4,49 +4,12 @@ import type { SuccessResponse } from "./responses/success-response";
 import type { LoginResponseData } from "./responses/login-response";
 import type { RegisterResponseData } from "./responses/register-response";
 import { ApiErrorHandler } from "./api-error-handler";
+import { BaseClient } from "./BaseClient";
 
-export class ApiClient {
-    
-    private readonly baseUrl: string;
-    private headers: HeadersInit;
-    private token: string | null = null;
-    private errorHandler: ApiErrorHandler;
+export class AuthorizationClient extends BaseClient {
 
     constructor(baseUrl: string, errorHandler?: ApiErrorHandler) {
-        this.baseUrl = baseUrl;
-        this.errorHandler = errorHandler || new ApiErrorHandler();
-        this.headers = this.createDefaultHeaders();
-        this.token = localStorage.getItem('vickyToken');
-    }
-
-    private createDefaultHeaders(): HeadersInit {
-        const headers = new Headers();
-        headers.append('Content-Type', 'application/json');
-        
-        if (this.token) {
-            headers.append('Authorization', `Bearer ${this.token}`);
-        }
-
-        return headers;
-    }
-
-    private updateAuthHeader(): void {
-        const headers = new Headers();
-        headers.append('Content-Type', 'application/json');
-        
-        if (this.token) {
-            headers.append('Authorization', `Bearer ${this.token}`);
-        }
-
-        this.headers = headers;
-    }
-
-    private async tryParse(response: Response): Promise<unknown | string> {
-        try {
-            return response.json();
-        } catch(err: unknown) {
-            return response.text();
-        }
+        super(baseUrl, errorHandler);
     }
 
     public async register(request: RegisterRequest): Promise<SuccessResponse<RegisterResponseData>> {
@@ -107,14 +70,6 @@ export class ApiClient {
         }        
 
         return (payload as SuccessResponse<{id: string, username: string}>).data;
-    }
-
-    public setToken(token: string) {
-        this.token = token;
-        this.headers = {
-            'Content-Type': 'application/json',
-            ...(token && { 'Authorization': `Bearer ${token}` })
-        };
     }
 
     public getToken(): string | null {

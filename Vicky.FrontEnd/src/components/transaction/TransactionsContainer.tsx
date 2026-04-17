@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { Transactions } from './Transactions';
+import { TransactionFormContainer } from './TransactionFormContainer';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface Transaction {
   id: string;
@@ -24,7 +25,6 @@ export function TransactionsContainer() {
   const loadTransactions = () => {
     const all = JSON.parse(localStorage.getItem('vickyTransactions') || '[]');
     const userTransactions = all.filter((t: Transaction) => t.userId === user?.username);
-    // Sort by date descending
     userTransactions.sort((a: Transaction, b: Transaction) =>
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
@@ -66,10 +66,15 @@ export function TransactionsContainer() {
   return (
     <Transactions
       transactions={transactions}
-      counterparties={counterparties}
       showForm={showForm}
+      form={
+        <TransactionFormContainer
+          counterparties={counterparties}
+          onSubmit={handleSubmit}
+          onCancel={toggleForm}
+        />
+      }
       onToggleForm={toggleForm}
-      onSubmit={handleSubmit}
       onDelete={handleDelete}
     />
   );
