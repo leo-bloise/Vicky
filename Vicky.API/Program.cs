@@ -45,6 +45,8 @@ public class Program
 
         builder.Services
             .AddScoped<IQueryHandler<QueryTransactionsByDateRange, IEnumerable<Transaction>>, QueryTransactionsByDateRangeHandler>();
+        builder.Services
+            .AddScoped<IQueryHandler<GetCounterpartiesPagedQuery, IEnumerable<Counterparty>>, GetCounterpartiesPagedQueryHandler>();
 
         builder.Services
             .AddScoped<DatabaseContext>();

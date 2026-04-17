@@ -52,4 +52,18 @@ internal class CounterpartyRepository(DatabaseContext context) : ICounterpartyRe
                         user_id AS {nameof(Counterparty.UserId)}";
         return context.DbConnection.QuerySingle<Counterparty>(sql, new { counterparty.Id, counterparty.Name, counterparty.UserId });
     }
+
+    public IEnumerable<Counterparty> GetPaged(Guid userId, int pageNumber, int pageSize)
+    {
+        int offset = (pageNumber - 1) * pageSize;
+        string sql = @$"SELECT 
+                        id AS {nameof(Counterparty.Id)}, 
+                        name AS {nameof(Counterparty.Name)}, 
+                        user_id AS {nameof(Counterparty.UserId)} 
+                        FROM {TableName} 
+                        WHERE user_id = @UserId 
+                        ORDER BY name ASC 
+                        LIMIT @PageSize OFFSET @Offset";
+        return context.DbConnection.Query<Counterparty>(sql, new { UserId = userId, PageSize = pageSize, Offset = offset });
+    }
 }
