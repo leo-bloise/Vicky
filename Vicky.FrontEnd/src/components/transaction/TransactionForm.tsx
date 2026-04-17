@@ -1,43 +1,18 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-
-const transactionSchema = z.object({
-  amount: z.number().min(0.01, 'Amount must be greater than 0'),
-  date: z.string().min(1, 'Date is required'),
-  counterparty: z.string().min(1, 'Counterparty is required'),
-});
-
-type TransactionFormData = z.infer<typeof transactionSchema>;
+import type { FormEventHandler } from 'react';
+import type { FieldErrors, UseFormRegister } from 'react-hook-form';
+import type { TransactionFormData } from './TransactionFormContainer';
 
 interface TransactionFormProps {
   counterparties: string[];
-  onSubmit: (data: TransactionFormData) => void;
+  register: UseFormRegister<TransactionFormData>;
+  errors: FieldErrors<TransactionFormData>;
+  onSubmit: FormEventHandler<HTMLFormElement>;
   onCancel: () => void;
 }
 
-export function TransactionForm({ counterparties, onSubmit, onCancel }: TransactionFormProps) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<TransactionFormData>({
-    resolver: zodResolver(transactionSchema),
-    defaultValues: {
-      amount: 0,
-      date: new Date().toISOString().split('T')[0],
-      counterparty: '',
-    },
-  });
-
-  const onFormSubmit = (data: TransactionFormData) => {
-    onSubmit(data);
-    reset();
-  };
-
+export function TransactionForm({ counterparties, register, errors, onSubmit, onCancel }: TransactionFormProps) {
   return (
-    <form onSubmit={handleSubmit(onFormSubmit)} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
+    <form onSubmit={onSubmit} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
       <div className="space-y-4">
         <div>
           <label htmlFor="amount" className="block text-sm mb-2 text-gray-700">

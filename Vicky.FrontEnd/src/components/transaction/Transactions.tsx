@@ -1,5 +1,5 @@
+import type { ReactNode } from 'react';
 import { Plus } from 'lucide-react';
-import { TransactionForm } from './TransactionForm';
 import { TransactionList } from './TransactionList';
 
 interface Transaction {
@@ -12,19 +12,17 @@ interface Transaction {
 
 interface TransactionsProps {
   transactions: Transaction[];
-  counterparties: string[];
   showForm: boolean;
+  form: ReactNode;
   onToggleForm: () => void;
-  onSubmit: (data: { amount: number; date: string; counterparty: string }) => void;
   onDelete: (id: string) => void;
 }
 
 export function Transactions({
   transactions,
-  counterparties,
   showForm,
+  form,
   onToggleForm,
-  onSubmit,
   onDelete,
 }: TransactionsProps) {
   return (
@@ -40,13 +38,7 @@ export function Transactions({
         </button>
       </div>
 
-      {showForm && (
-        <TransactionForm
-          counterparties={counterparties}
-          onSubmit={onSubmit}
-          onCancel={onToggleForm}
-        />
-      )}
+      {showForm && form}
 
       <TransactionList transactions={transactions} onDelete={onDelete} />
     </div>

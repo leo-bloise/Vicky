@@ -2,7 +2,7 @@ import { createContext, useContext, useReducer, useEffect, useCallback } from 'r
 import type { ReactNode } from 'react';
 import { AuthActionType } from './types/auth-types';
 import type { AuthState, AuthAction, AuthContextType } from './types/auth-types';
-import { ApiClient } from '../services/ApiClient';
+import { AuthorizationClient } from '../services/AuthorizationClient';
 import type { LoginRequest } from '../services/requests/login-request';
 import type { RegisterRequest } from '../services/requests/register-request';
 import type { ProfileResponseData } from '../services/responses/profile-response';
@@ -36,7 +36,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const apiClient = new ApiClient(import.meta.env.VITE_API_URL || 'http://localhost:8080');
+  const apiClient = new AuthorizationClient(import.meta.env.VITE_API_URL || 'http://localhost:8080');
 
   useEffect(() => {
     const token = localStorage.getItem('vickyToken');

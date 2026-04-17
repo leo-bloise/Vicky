@@ -3,8 +3,8 @@ import { Login } from './components/Login';
 import { Register } from './components/Register';
 import { Layout } from './components/Layout';
 import { MonthReportContainer } from './components/MonthReportContainer';
-import { TransactionsContainer } from './components/TransactionsContainer';
-import { Counterparties } from './components/Counterparties';
+import { TransactionsContainer } from './components/transaction/TransactionsContainer';
+import { Counterparties } from './components/counterparty/Counterparties';
 import { useAuth } from './contexts/AuthContext';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
