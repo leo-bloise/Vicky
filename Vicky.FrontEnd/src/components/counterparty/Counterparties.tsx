@@ -23,7 +23,7 @@ export function Counterparties() {
   const [counterparties, setCounterparties] = useState<CounterpartyListItem[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingCounterparties, setIsLoadingCounterparties] = useState(false);  
+  const [isLoadingCounterparties, setIsLoadingCounterparties] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
@@ -34,6 +34,7 @@ export function Counterparties() {
     if (!user || isLoadingCounterparties) return;
 
     setIsLoadingCounterparties(true);
+    const loadingStartTime = Date.now();
 
     try {
       const now = new Date();
@@ -48,11 +49,19 @@ export function Counterparties() {
       };
 
       const response = await counterpartiesClient.get(request);
+
       setCounterparties(response.data);
+
+      setTimeout(() => {
+        setIsLoadingCounterparties(false);
+      }, Math.max(0, 300 - (Date.now() - (loadingStartTime || Date.now()))));
+
     } catch (err) {
       setCounterparties([]);
-    } finally {
-      setIsLoadingCounterparties(false);
+
+      setTimeout(() => {
+        setIsLoadingCounterparties(false);
+      }, Math.max(0, 300 - (Date.now() - (loadingStartTime || Date.now()))));
     }
   };
 

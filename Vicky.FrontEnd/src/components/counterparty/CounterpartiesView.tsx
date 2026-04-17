@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import type { CounterpartyListItem } from '../../services/counterparties/types';
+import { Loader } from '../ui/loader';
 
 interface CounterpartiesViewProps {
   counterparties: CounterpartyListItem[];
@@ -51,8 +52,8 @@ export function CounterpartiesView({ counterparties, showForm, onToggleForm, onD
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {isLoading ? (
-          <div className="p-8 text-center text-gray-500">
-            Loading counterparties...
+          <div className="p-8">
+            <Loader />
           </div>
         ) : counterparties.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
