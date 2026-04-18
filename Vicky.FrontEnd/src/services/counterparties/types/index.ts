@@ -1,8 +1,16 @@
+import type { SuccessResponse } from "../../responses/success-response";
+
 export interface GetCounterpartiesRequest {
   pageNumber: number;
   pageSize: number;
   startDate: string;
   endDate: string;
+  name?: string;
+}
+
+export interface GetCounterpartiesByCursorRequest {
+  limit?: number;
+  continuationToken?: string;
   name?: string;
 }
 
@@ -21,3 +29,10 @@ export interface GetCounterpartiesResponse {
   message: string;
   success: boolean;
 }
+
+export interface GetCounterpartiesByCursorResponseData {
+  continuationToken: string | null;
+  data: CounterpartyListItem[];
+}
+
+export type GetCounterpartiesByCursorResponse = SuccessResponse<GetCounterpartiesByCursorResponseData>;

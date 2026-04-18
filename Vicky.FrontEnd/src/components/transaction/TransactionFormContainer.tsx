@@ -1,26 +1,33 @@
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TransactionForm } from './TransactionForm';
-
-export const transactionSchema = z.object({
-  amount: z.number().min(0.01, 'Amount must be greater than 0'),
-  date: z.string().min(1, 'Date is required'),
-  counterparty: z.string().min(1, 'Counterparty is required'),
-});
-
-export type TransactionFormData = z.infer<typeof transactionSchema>;
+import type { CounterpartyListItem } from '../../services/counterparties/types';
+import { transactionSchema, type TransactionFormData } from './schemas/TransactionSchema';
+import type { UIEventHandler, ChangeEventHandler } from 'react';
 
 interface TransactionFormContainerProps {
-  counterparties: string[];
+  counterparties: CounterpartyListItem[];
   onSubmit: (data: TransactionFormData) => void;
   onCancel: () => void;
+  onScroll?: UIEventHandler<HTMLDivElement>;
+  isLoadingMore?: boolean;
+  onSearchChange?: ChangeEventHandler<HTMLInputElement>;
+  searchQuery?: string;
 }
 
-export function TransactionFormContainer({ counterparties, onSubmit, onCancel }: TransactionFormContainerProps) {
+export function TransactionFormContainer({
+  counterparties,
+  onSubmit,
+  onCancel,
+  onScroll,
+  isLoadingMore,
+  onSearchChange,
+  searchQuery
+}: TransactionFormContainerProps) {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     reset,
   } = useForm<TransactionFormData>({
@@ -28,7 +35,7 @@ export function TransactionFormContainer({ counterparties, onSubmit, onCancel }:
     defaultValues: {
       amount: 0,
       date: new Date().toISOString().split('T')[0],
-      counterparty: '',
+      counterpartyId: '',
     },
   });
 
@@ -41,9 +48,14 @@ export function TransactionFormContainer({ counterparties, onSubmit, onCancel }:
     <TransactionForm
       counterparties={counterparties}
       register={register}
+      control={control}
       errors={errors}
       onSubmit={onFormSubmit}
       onCancel={onCancel}
+      onScroll={onScroll}
+      isLoadingMore={isLoadingMore}
+      onSearchChange={onSearchChange}
+      searchQuery={searchQuery}
     />
   );
 }

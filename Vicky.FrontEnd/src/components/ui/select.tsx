@@ -6,6 +6,7 @@ import {
   CheckIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  Search,
 } from "lucide-react";
 
 import { cn } from "./utils";
@@ -58,8 +59,11 @@ function SelectContent({
   className,
   children,
   position = "popper",
+  onScroll,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Content>) {
+}: React.ComponentProps<typeof SelectPrimitive.Content> & {
+  onScroll?: React.UIEventHandler<HTMLDivElement>;
+}) {
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
@@ -75,6 +79,7 @@ function SelectContent({
       >
         <SelectScrollUpButton />
         <SelectPrimitive.Viewport
+          onScroll={onScroll}
           className={cn(
             "p-1",
             position === "popper" &&
@@ -175,6 +180,24 @@ function SelectScrollDownButton({
   );
 }
 
+function SelectSearch({
+  className,
+  ...props
+}: React.ComponentProps<"input">) {
+  return (
+    <div className="flex items-center border-b px-3 py-3" cmdk-input-wrapper="">
+      <Search className="mr-2 h-4 w-4 shrink-0 opacity-50 text-blue-600" />
+      <input
+        className={cn(
+          "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+          className
+        )}
+        {...props}
+      />
+    </div>
+  );
+}
+
 export {
   Select,
   SelectContent,
@@ -186,4 +209,5 @@ export {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
+  SelectSearch,
 };

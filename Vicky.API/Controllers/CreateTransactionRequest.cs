@@ -13,9 +13,9 @@ public record CreateTransactionRequest(
 {
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if(Amount <=0)
+        if(Amount == 0)
         {
-            yield return new ValidationResult("Amount must be bigger than 0", [nameof(Amount)]);
+            yield return new ValidationResult("Amount must be different from 0", [nameof(Amount)]);
         }
     }
 };

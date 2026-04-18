@@ -1,3 +1,5 @@
+using Vicky.Common;
+
 namespace Vicky.Ledger;
 
 public interface ICounterpartyRepository
@@ -13,4 +15,6 @@ public interface ICounterpartyRepository
     public IEnumerable<Counterparty> GetPaged(Guid userId, int pageNumber, int pageSize, string? name = null);
 
     public int GetTotalCount(Guid userId, string? name = null);
+    
+    public IEnumerable<Counterparty> GetCursorData(Guid userId, int limit, DatabaseCursorToken? token, string? name = null);
 }
