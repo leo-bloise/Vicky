@@ -5,19 +5,20 @@ namespace Vicky.API.Controllers;
 public record GetCounterpartiesRequest(
     [Required]
     [Range(1, int.MaxValue)]
-    int? PageNumber,
+    int PageNumber,
     [Required]
     [Range(1, int.MaxValue)]
-    int? PageSize,
+    int PageSize,
     [Required]
-    DateTime? StartDate,
+    DateTime StartDate,
     [Required]
-    DateTime? EndDate
+    DateTime EndDate,
+    string? Name = null
 ) : IValidatableObject
 {
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (StartDate.HasValue && EndDate.HasValue && StartDate > EndDate)
+        if (StartDate > EndDate)
         {
             yield return new ValidationResult(
                 "StartDate must be less than or equal to EndDate.",

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Minus, Plus, Trash2 } from 'lucide-react';
+import { Minus, Plus, Trash2, Search } from 'lucide-react';
 import type { CounterpartyListItem } from '../../services/counterparties/types';
 import { Loader } from '../ui/loader';
 import {
@@ -10,6 +10,14 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Input } from "../ui/input";
 
 interface CounterpartiesViewProps {
   counterparties: CounterpartyListItem[];
@@ -21,10 +29,14 @@ interface CounterpartiesViewProps {
   error?: string | null;
   currentPage: number;
   totalPages: number;
+  pageSize: number;
   onNextPage: () => void;
   onPreviousPage: () => void;
+  onPageSizeChange: (pageSize: number) => void;
   hasNext: boolean;
   hasPrevious: boolean;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
 }
 
 export function CounterpartiesView({
@@ -37,10 +49,14 @@ export function CounterpartiesView({
   error,
   currentPage,
   totalPages,
+  pageSize,
   onNextPage,
   onPreviousPage,
+  onPageSizeChange,
   hasNext,
-  hasPrevious
+  hasPrevious,
+  searchQuery,
+  onSearchChange
 }: CounterpartiesViewProps) {
   return (
     <div>
@@ -56,6 +72,16 @@ export function CounterpartiesView({
         </button>
       </div>
 
+      <div className="mb-6 relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Input
+          placeholder="Search counterparties by name..."
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
       {showForm && form}
 
       {error && (
@@ -63,7 +89,7 @@ export function CounterpartiesView({
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
             </div>
             <div className="ml-3">
@@ -85,7 +111,7 @@ export function CounterpartiesView({
           </div>
         ) : counterparties.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
-            No counterparties yet. Add one to get started!
+            {searchQuery ? 'No counterparties match your search.' : 'No counterparties yet. Add one to get started!'}
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
@@ -107,43 +133,63 @@ export function CounterpartiesView({
         )}
       </div>
 
-      {totalPages > 1 && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (hasPrevious && !isLoading) onPreviousPage();
-                }}
-                className={!hasPrevious || isLoading ? "pointer-events-none opacity-50" : "cursor-pointer"}
-              />
-            </PaginationItem>
-            
-            <PaginationItem>
-              <PaginationLink isActive>
-                {currentPage}
-              </PaginationLink>
-            </PaginationItem>
+      <div className="flex justify-between items-center">
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-600">Rows per page:</span>
+          <Select
+            value={pageSize.toString()}
+            onValueChange={(value) => onPageSizeChange(Number(value))}
+          >
+            <SelectTrigger className="w-[70px] cursor-pointer">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem className='hover:bg-gray-300 cursor-pointer' value="5">5</SelectItem>
+              <SelectItem className='hover:bg-gray-300 cursor-pointer' value="10">10</SelectItem>
+              <SelectItem className='hover:bg-gray-300 cursor-pointer' value="20">20</SelectItem>
+              <SelectItem className='hover:bg-gray-300 cursor-pointer' value="50">50</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-            <PaginationItem>
-              <span className="px-4 text-sm text-gray-600">
-                of {totalPages}
-              </span>
-            </PaginationItem>
+        {totalPages > 1 && (
+          <Pagination className="mx-0 w-auto">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (hasPrevious && !isLoading) onPreviousPage();
+                  }}
+                  className={!hasPrevious || isLoading ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              
+              <PaginationItem>
+                <PaginationLink isActive>
+                  {currentPage}
+                </PaginationLink>
+              </PaginationItem>
 
-            <PaginationItem>
-              <PaginationNext 
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (hasNext && !isLoading) onNextPage();
-                }}
-                className={!hasNext || isLoading ? "pointer-events-none opacity-50" : "cursor-pointer"}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
+              <PaginationItem>
+                <span className="px-4 text-sm text-gray-600">
+                  of {totalPages}
+                </span>
+              </PaginationItem>
+
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (hasNext && !isLoading) onNextPage();
+                  }}
+                  className={!hasNext || isLoading ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
+      </div>
     </div>
   );
 }

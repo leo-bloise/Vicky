@@ -28,10 +28,10 @@ export default function usePagination<T>(initPagination: Omit<PaginationState<T>
     const hasNext = currentPage < totalPages;
     const hasPrevious = currentPage > 1;
 
-    const fetchPage = useCallback(async (page: number) => {
+    const fetchPage = useCallback(async (page: number, currentSize: number = pageSize) => {
         setState(prev => ({ ...prev, isLoading: true }));
         try {
-            const result = await pageProviderFunc(page, pageSize);
+            const result = await pageProviderFunc(page, currentSize);
             setState({
                 currentPage: result.currentPage,
                 data: result.data,
@@ -61,15 +61,21 @@ export default function usePagination<T>(initPagination: Omit<PaginationState<T>
         }
     }, [hasPrevious, isLoading, currentPage, fetchPage]);
 
+    const setPageSize = useCallback((newPageSize: number) => {
+        fetchPage(1, newPageSize);
+    }, [fetchPage]);
+
     return {
         currentPage,
         totalPages,
+        pageSize,
         data: currentState.data,
         hasNext,
         hasPrevious,
         handleNext,
         handlePrevious,
         loadPage,
+        setPageSize,
         isLoading
     }
 }

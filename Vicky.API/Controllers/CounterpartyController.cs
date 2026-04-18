@@ -47,7 +47,7 @@ public class CounterpartyController(CommandDispatcher commandDispatcher, QueryDi
             return Unauthorized();
         }
 
-        GetCounterpartiesPagedQuery query = new GetCounterpartiesPagedQuery(user.Id, request.PageNumber!.Value, request.PageSize!.Value);
+        GetCounterpartiesPagedQuery query = new GetCounterpartiesPagedQuery(user.Id, request.PageNumber, request.PageSize, request.Name);
         var pagedResult = queryDispatcher.Dispatch<GetCounterpartiesPagedQuery, PagedResult<Counterparty>>(query);
 
         var response = new

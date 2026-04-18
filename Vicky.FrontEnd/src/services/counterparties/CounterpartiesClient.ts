@@ -36,6 +36,9 @@ export class CounterpartiesClient extends BaseClient {
         url.searchParams.append('pageSize', request.pageSize.toString());
         url.searchParams.append('startDate', request.startDate);
         url.searchParams.append('endDate', request.endDate);
+        if (request.name) {
+            url.searchParams.append('name', request.name);
+        }
 
         const response = await fetch(url.toString(), {
             method: 'GET',

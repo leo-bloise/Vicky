@@ -3,6 +3,7 @@ export interface GetCounterpartiesRequest {
   pageSize: number;
   startDate: string;
   endDate: string;
+  name?: string;
 }
 
 export interface CounterpartyListItem {

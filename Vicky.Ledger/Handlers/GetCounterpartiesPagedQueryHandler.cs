@@ -7,8 +7,8 @@ public sealed class GetCounterpartiesPagedQueryHandler(ICounterpartyRepository c
 {
     public PagedResult<Counterparty> Execute(GetCounterpartiesPagedQuery request)
     {
-        var data = counterpartyRepository.GetPaged(request.UserId, request.PageNumber, request.PageSize);
-        var totalItems = counterpartyRepository.GetTotalCount(request.UserId);
+        var data = counterpartyRepository.GetPaged(request.UserId, request.PageNumber, request.PageSize, request.Name);
+        var totalItems = counterpartyRepository.GetTotalCount(request.UserId, request.Name);
         var totalPages = (int)Math.Ceiling((double)totalItems / request.PageSize);
         
         return new PagedResult<Counterparty>(
