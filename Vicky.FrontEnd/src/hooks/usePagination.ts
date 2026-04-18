@@ -65,6 +65,13 @@ export default function usePagination<T>(initPagination: Omit<PaginationState<T>
         fetchPage(1, newPageSize);
     }, [fetchPage]);
 
+    const resetPage = () => {
+        setState(old => ({
+            ...old,
+            currentPage: initPagination.currentPage
+        }))
+    }
+
     return {
         currentPage,
         totalPages,
@@ -76,6 +83,7 @@ export default function usePagination<T>(initPagination: Omit<PaginationState<T>
         handlePrevious,
         loadPage,
         setPageSize,
-        isLoading
+        isLoading,
+        resetPage
     }
 }

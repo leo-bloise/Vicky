@@ -48,6 +48,9 @@ public class Program
             
         builder.Services
             .AddScoped<IQueryHandler<GetCounterpartiesPagedQuery, PagedResult<Counterparty>>, GetCounterpartiesPagedQueryHandler>();
+        
+        builder.Services
+            .AddScoped<IQueryHandler<GetCounterpartiesPagedQueryWithCursor, CursorResult<Counterparty>>, GetCounterpartiesPagedQueryWithCursorHandler>();
 
         builder.Services
             .AddScoped<DatabaseContext>();

@@ -1,5 +1,6 @@
 import { AuthorizationClient } from './AuthorizationClient';
 import { CounterpartiesClient } from './counterparties/CounterpartiesClient';
+import { TransactionsClient } from './transactions/TransactionsClient';
 import { ApiErrorHandler } from './api-error-handler';
 
 export class ClientFactory {
@@ -27,6 +28,14 @@ export class ClientFactory {
 
   public createCounterpartiesClient(): CounterpartiesClient {
     const client = new CounterpartiesClient(this.baseUrl, this.errorHandler);
+    if (this.token) {
+      client.setToken(this.token);
+    }
+    return client;
+  }
+
+  public createTransactionsClient(): TransactionsClient {
+    const client = new TransactionsClient(this.baseUrl, this.errorHandler);
     if (this.token) {
       client.setToken(this.token);
     }

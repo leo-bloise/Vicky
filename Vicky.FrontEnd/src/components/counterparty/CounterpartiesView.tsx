@@ -135,7 +135,7 @@ export function CounterpartiesView({
             <SelectTrigger className="w-17.5 cursor-pointer">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className='bg-white'>
               <SelectItem className='hover:bg-gray-300 cursor-pointer' value="5">5</SelectItem>
               <SelectItem className='hover:bg-gray-300 cursor-pointer' value="10">10</SelectItem>
               <SelectItem className='hover:bg-gray-300 cursor-pointer' value="20">20</SelectItem>

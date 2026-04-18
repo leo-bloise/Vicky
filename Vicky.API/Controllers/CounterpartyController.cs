@@ -64,4 +64,30 @@ public class CounterpartyController(CommandDispatcher commandDispatcher, QueryDi
 
         return Ok(ApiResponse<object>.SuccessResponse(response, "Counterparties retrieved successfully"));
     }
+
+    [HttpGet]
+    [Route("cursor")]
+    public IActionResult GetCursor([FromQuery] GetCounterpartiesByCursorRequest request) {
+        User? user = jwtTokenService.Adapt(new ClaimsPrincipalAdapter(User));
+        
+        if(user is null) {
+            return Unauthorized();
+        }
+
+        DatabaseCursorToken? databaseCursorToken = request.ContinuationToken is not null ? DatabaseCursorToken.FromString(request.ContinuationToken) : null;
+
+        GetCounterpartiesPagedQueryWithCursor query = new GetCounterpartiesPagedQueryWithCursor(user.Id, request.Limit ?? 10, databaseCursorToken, request.Name);
+
+        var cursor = queryDispatcher.Dispatch<GetCounterpartiesPagedQueryWithCursor, CursorResult<Counterparty>>(query);
+
+        var response = new {
+            ContinuationToken = cursor.ContinuationToken?.ToString(),
+            Data = cursor.Data.Select(d => new {
+                d.Id,
+                d.Name
+            })
+        };
+
+        return Ok(ApiResponse<object>.SuccessResponse(response, "Counterparties retrieved successfully"));
+    }
 }

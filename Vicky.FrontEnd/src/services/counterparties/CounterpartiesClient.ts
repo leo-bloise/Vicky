@@ -2,7 +2,7 @@ import type { ApiErrorHandler } from "../api-error-handler";
 import type { CreateCounterpartyRequest } from "../requests/create-counterparty-request";
 import type { CounterpartyResponse } from "../responses/counterparty-response";
 import type { SuccessResponse } from "../responses/success-response";
-import type { GetCounterpartiesRequest, GetCounterpartiesResponse } from "./types";
+import type { GetCounterpartiesRequest, GetCounterpartiesResponse, GetCounterpartiesByCursorRequest, GetCounterpartiesByCursorResponse } from "./types";
 import { BaseClient } from "../BaseClient";
 
 export class CounterpartiesClient extends BaseClient {
@@ -52,5 +52,31 @@ export class CounterpartiesClient extends BaseClient {
         }
 
         return data as GetCounterpartiesResponse;
+    }
+
+    public async getCursor(request: GetCounterpartiesByCursorRequest): Promise<GetCounterpartiesByCursorResponse> {
+        const url = new URL(`${this.baseUrl}/counterparty/cursor`);
+        if (request.limit) {
+            url.searchParams.append('limit', request.limit.toString());
+        }
+        if (request.continuationToken) {
+            url.searchParams.append('continuationToken', request.continuationToken);
+        }
+        if (request.name) {
+            url.searchParams.append('name', request.name);
+        }
+
+        const response = await fetch(url.toString(), {
+            method: 'GET',
+            headers: this.headers
+        });
+
+        const data = await this.tryParse(response);
+
+        if (response.status !== 200) {
+            this.errorHandler.handle(response, data);
+        }
+
+        return data as GetCounterpartiesByCursorResponse;
     }
 }

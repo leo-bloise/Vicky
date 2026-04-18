@@ -64,13 +64,19 @@ export function Counterparties() {
     handlePrevious,
     loadPage,
     setPageSize,
-    isLoading
+    isLoading,
+    resetPage
   } = usePagination<CounterpartyListItem>({
     currentPage: 1,
     totalPages: 0,
     pageSize: 5,
     data: []
   }, fetchCounterparties);
+
+  const changeSearchQuery = (query: string) => {
+    setSearchQuery(query);
+    resetPage();
+  };
   
   useEffect(() => {
     if (user) {
@@ -123,7 +129,7 @@ export function Counterparties() {
         hasNext={hasNext}
         hasPrevious={hasPrevious}
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={changeSearchQuery}
       />
     </div>
   );
