@@ -2,6 +2,14 @@ import type { ReactNode } from 'react';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import type { CounterpartyListItem } from '../../services/counterparties/types';
 import { Loader } from '../ui/loader';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../ui/pagination";
 
 interface CounterpartiesViewProps {
   counterparties: CounterpartyListItem[];
@@ -11,9 +19,29 @@ interface CounterpartiesViewProps {
   form: ReactNode;
   isLoading?: boolean;
   error?: string | null;
+  currentPage: number;
+  totalPages: number;
+  onNextPage: () => void;
+  onPreviousPage: () => void;
+  hasNext: boolean;
+  hasPrevious: boolean;
 }
 
-export function CounterpartiesView({ counterparties, showForm, onToggleForm, onDelete, form, isLoading = false, error }: CounterpartiesViewProps) {
+export function CounterpartiesView({
+  counterparties,
+  showForm,
+  onToggleForm,
+  onDelete,
+  form,
+  isLoading = false,
+  error,
+  currentPage,
+  totalPages,
+  onNextPage,
+  onPreviousPage,
+  hasNext,
+  hasPrevious
+}: CounterpartiesViewProps) {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -35,7 +63,7 @@ export function CounterpartiesView({ counterparties, showForm, onToggleForm, onD
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
             </div>
             <div className="ml-3">
@@ -50,7 +78,7 @@ export function CounterpartiesView({ counterparties, showForm, onToggleForm, onD
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
         {isLoading ? (
           <div className="p-8">
             <Loader />
@@ -78,6 +106,44 @@ export function CounterpartiesView({ counterparties, showForm, onToggleForm, onD
           </div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (hasPrevious && !isLoading) onPreviousPage();
+                }}
+                className={!hasPrevious || isLoading ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+            
+            <PaginationItem>
+              <PaginationLink isActive>
+                {currentPage}
+              </PaginationLink>
+            </PaginationItem>
+
+            <PaginationItem>
+              <span className="px-4 text-sm text-gray-600">
+                of {totalPages}
+              </span>
+            </PaginationItem>
+
+            <PaginationItem>
+              <PaginationNext 
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (hasNext && !isLoading) onNextPage();
+                }}
+                className={!hasNext || isLoading ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 }
