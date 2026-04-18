@@ -108,7 +108,6 @@ export function Counterparties() {
           setShowForm((value) => !value);
           setError(null);
         }}
-        onDelete={() => {}}
         form={<CounterpartyFormContainer onSubmit={handleAdd} onCancel={() => {
           setShowForm(false);
           setError(null);

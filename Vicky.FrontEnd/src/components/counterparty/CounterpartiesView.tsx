@@ -23,7 +23,6 @@ interface CounterpartiesViewProps {
   counterparties: CounterpartyListItem[];
   showForm: boolean;
   onToggleForm: () => void;
-  onDelete: (id: string) => void;
   form: ReactNode;
   isLoading?: boolean;
   error?: string | null;
