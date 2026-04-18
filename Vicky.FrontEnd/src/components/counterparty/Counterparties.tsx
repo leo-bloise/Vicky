@@ -25,12 +25,15 @@ export function Counterparties() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingCounterparties, setIsLoadingCounterparties] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 20;
   
   useEffect(() => {
-    loadCounterparties();
+    loadCounterparties(1);
   }, [user]);
 
-  const loadCounterparties = async () => {
+  const loadCounterparties = async (pageNumber: number = currentPage) => {
     if (!user || isLoadingCounterparties) return;
 
     setIsLoadingCounterparties(true);
@@ -42,15 +45,19 @@ export function Counterparties() {
       const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
 
       const request = {
-        pageNumber: 1,
-        pageSize: 20,
+        pageNumber,
+        pageSize,
         startDate: startOfMonth.toISOString().split('T')[0],
         endDate: endOfDay.toISOString().split('T')[0]
       };
 
       const response = await counterpartiesClient.get(request);
 
-      setCounterparties(response.data);
+      const { data } = response;
+
+      setCounterparties(data.data);
+      setCurrentPage(data.currentPage);
+      setTotalCount(data.totalPages);
 
       setTimeout(() => {
         setIsLoadingCounterparties(false);
@@ -76,31 +83,69 @@ export function Counterparties() {
       await counterpartiesClient.create(request);
 
       setShowForm(false);
-      loadCounterparties();
+      loadCounterparties(currentPage);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create counterparty';
       setError(errorMessage);
-      throw err; // Re-throw so the form container knows it failed
+      throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
+  const hasNext = (currentPage * pageSize) < totalCount;
+  const hasPrevious = currentPage > 1;
+
+  const handleNext = () => {
+    if (hasNext) {
+      loadCounterparties(currentPage + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (hasPrevious) {
+      loadCounterparties(currentPage - 1);
+    }
+  };
+
   return (
-    <CounterpartiesView
-      counterparties={counterparties}
-      showForm={showForm}
-      onToggleForm={() => {
-        setShowForm((value) => !value);
-        setError(null); // Clear error when toggling form
-      }}
-      onDelete={() => {}} // TODO: Implement delete API
-      form={<CounterpartyFormContainer onSubmit={handleAdd} onCancel={() => {
-        setShowForm(false);
-        setError(null); // Clear error when canceling
-      }} disabled={isLoading} />}
-      isLoading={isLoadingCounterparties}
-      error={error}
-    />
+    <div>
+      <CounterpartiesView
+        counterparties={counterparties}
+        showForm={showForm}
+        onToggleForm={() => {
+          setShowForm((value) => !value);
+          setError(null);
+        }}
+        onDelete={() => {}}
+        form={<CounterpartyFormContainer onSubmit={handleAdd} onCancel={() => {
+          setShowForm(false);
+          setError(null);
+        }} disabled={isLoading} />}
+        isLoading={isLoadingCounterparties}
+        error={error}
+      />
+      {totalCount > pageSize && (
+        <div className="flex justify-between items-center mt-4">
+          <button
+            onClick={handlePrevious}
+            disabled={!hasPrevious || isLoadingCounterparties}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <span className="text-gray-600">
+            Page {currentPage} of {Math.ceil(totalCount / pageSize)} ({totalCount} total items)
+          </span>
+          <button
+            onClick={handleNext}
+            disabled={!hasNext || isLoadingCounterparties}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

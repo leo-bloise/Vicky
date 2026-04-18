@@ -11,7 +11,12 @@ export interface CounterpartyListItem {
 }
 
 export interface GetCounterpartiesResponse {
-  data: CounterpartyListItem[];
+  data: {
+    currentPage: number,
+    data: CounterpartyListItem[],
+    totalItems: number,
+    totalPages: number
+  };
   message: string;
   success: boolean;
 }

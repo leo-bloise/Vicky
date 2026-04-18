@@ -59,11 +59,17 @@ internal class CounterpartyRepository(DatabaseContext context) : ICounterpartyRe
         string sql = @$"SELECT 
                         id AS {nameof(Counterparty.Id)}, 
                         name AS {nameof(Counterparty.Name)}, 
-                        user_id AS {nameof(Counterparty.UserId)} 
+                        user_id AS {nameof(Counterparty.UserId)}                         
                         FROM {TableName} 
                         WHERE user_id = @UserId 
                         ORDER BY name ASC 
                         LIMIT @PageSize OFFSET @Offset";
         return context.DbConnection.Query<Counterparty>(sql, new { UserId = userId, PageSize = pageSize, Offset = offset });
+    }
+
+    public int GetTotalCount(Guid userId)
+    {
+        string sql = $"SELECT COUNT(*) FROM {TableName} WHERE user_id = @UserId";
+        return context.DbConnection.ExecuteScalar<int>(sql, new { UserId = userId });
     }
 }

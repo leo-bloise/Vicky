@@ -48,13 +48,19 @@ public class CounterpartyController(CommandDispatcher commandDispatcher, QueryDi
         }
 
         GetCounterpartiesPagedQuery query = new GetCounterpartiesPagedQuery(user.Id, request.PageNumber!.Value, request.PageSize!.Value);
-        IEnumerable<Counterparty> counterparties = queryDispatcher.Dispatch<GetCounterpartiesPagedQuery, IEnumerable<Counterparty>>(query);
+        var pagedResult = queryDispatcher.Dispatch<GetCounterpartiesPagedQuery, PagedResult<Counterparty>>(query);
 
-        var response = counterparties.Select(c => new
+        var response = new
         {
-            c.Id,
-            c.Name
-        });
+            pagedResult.CurrentPage,
+            pagedResult.TotalPages,
+            pagedResult.TotalItems,
+            Data = pagedResult.Data.Select(c => new
+            {
+                c.Id,
+                c.Name
+            })
+        };
 
         return Ok(ApiResponse<object>.SuccessResponse(response, "Counterparties retrieved successfully"));
     }
