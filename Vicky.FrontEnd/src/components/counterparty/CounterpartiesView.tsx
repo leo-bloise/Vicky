@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Minus, Plus, Trash2, Search, Filter } from 'lucide-react';
+import { Minus, Plus, Search } from 'lucide-react';
 import type { CounterpartyListItem } from '../../services/counterparties/types';
 import { Loader } from '../ui/loader';
 import {
@@ -43,7 +43,6 @@ export function CounterpartiesView({
   counterparties,
   showForm,
   onToggleForm,
-  onDelete,
   form,
   isLoading = false,
   error,
