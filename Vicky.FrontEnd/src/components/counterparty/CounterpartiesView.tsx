@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Minus, Plus, Trash2, Search } from 'lucide-react';
+import { Minus, Plus, Trash2, Search, Filter } from 'lucide-react';
 import type { CounterpartyListItem } from '../../services/counterparties/types';
 import { Loader } from '../ui/loader';
 import {
@@ -72,17 +72,17 @@ export function CounterpartiesView({
         </button>
       </div>
 
-      <div className="mb-6 relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+      {showForm && form}
+
+      {!showForm && <div className="mb-6 relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-600 z-10" />
         <Input
           placeholder="Search counterparties by name..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10"
+          className="pl-10 pr-10"
         />
-      </div>
-
-      {showForm && form}
+      </div>}
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
@@ -121,12 +121,6 @@ export function CounterpartiesView({
                 className="flex justify-between items-center p-4 hover:bg-gray-50 transition-colors"
               >
                 <span className="text-gray-900">{counterparty.name}</span>
-                <button
-                  onClick={() => onDelete(counterparty.id)}
-                  className="text-red-500 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
               </div>
             ))}
           </div>
