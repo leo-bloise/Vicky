@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Plus } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { TransactionList } from './TransactionList';
 
 interface Transaction {
@@ -31,10 +31,16 @@ export function Transactions({
         <h2 className="text-3xl text-gray-900">Transactions</h2>
         <button
           onClick={onToggleForm}
-          className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+          className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors cursor-pointer"
         >
-          <Plus className="w-4 h-4" />
-          <span>Add Transaction</span>
+          {showForm ? <>
+            <Minus className="w-4 h-4" />
+            <span>Add Transaction</span>
+          </> : <>
+            <Plus className="w-4 h-4" />
+            <span>Add Transaction</span>
+          </>}
+
         </button>
       </div>
 
