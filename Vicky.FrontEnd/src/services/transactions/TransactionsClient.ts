@@ -1,5 +1,11 @@
 import { BaseClient } from "../BaseClient";
 import type { ApiErrorHandler } from "../api-error-handler";
+import type { 
+  GetTransactionsPagedRequest, 
+  GetTransactionsPagedResponse,
+  TransactionListItem
+} from "./types";
+import type { SuccessResponse } from "../responses/success-response";
 
 export interface CreateTransactionRequest {
   amount: number;
@@ -65,5 +71,26 @@ export class TransactionsClient extends BaseClient {
     }
 
     return data as ApiResponse<TransactionResponse[]>;
+  }
+
+  public async getPaged(request: GetTransactionsPagedRequest): Promise<GetTransactionsPagedResponse> {
+    const url = new URL(`${this.baseUrl}/transaction/paged`);
+    url.searchParams.append('pageNumber', request.pageNumber.toString());
+    url.searchParams.append('pageSize', request.pageSize.toString());
+    url.searchParams.append('startDate', request.startDate);
+    url.searchParams.append('endDate', request.endDate);
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: this.headers
+    });
+
+    const data = await this.tryParse(response);
+
+    if (response.status !== 200) {
+      this.errorHandler.handle(response, data);
+    }
+
+    return data as GetTransactionsPagedResponse;
   }
 }

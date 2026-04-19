@@ -6,6 +6,7 @@ import type { TransactionFormData } from './schemas/TransactionSchema';
 import { useAuth } from '../../contexts/AuthContext';
 import type { CounterpartyListItem } from '../../services/counterparties/types';
 import useDebounce from '../../hooks/useDebounce';
+import usePagination from '../../hooks/usePagination';
 
 interface Transaction {
   id: string;
@@ -21,7 +22,6 @@ export function TransactionsContainer() {
   const transactionsClient = useMemo(() => clientFactory.createTransactionsClient(), [clientFactory]);
   const counterpartiesClient = useMemo(() => clientFactory.createCounterpartiesClient(), [clientFactory]);
 
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [counterparties, setCounterparties] = useState<CounterpartyListItem[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [continuationToken, setContinuationToken] = useState<string | null>(null);
@@ -31,7 +31,7 @@ export function TransactionsContainer() {
 
   const fetchInitialCounterparties = useCallback(async (query: string) => {
     try {
-      const response = await counterpartiesClient.getCursor({ limit: 20, name: query });
+      const response = await counterpartiesClient.getCursor({ limit: 100, name: query });
       setCounterparties(response.data.data);
       setContinuationToken(response.data.continuationToken);
       return response.data.data;
@@ -60,6 +60,60 @@ export function TransactionsContainer() {
     }
   }, [counterpartiesClient, continuationToken, isLoadingMore, debouncedSearchQuery]);
 
+  const pageProvider = useCallback(async (pageNumber: number, pageSize: number) => {
+    if (!user) {
+        return { currentPage: 1, totalPages: 0, pageSize, data: [] };
+    }
+
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+    const response = await transactionsClient.getPaged({
+      pageNumber,
+      pageSize,
+      startDate: startOfMonth.toISOString(),
+      endDate: endOfDay.toISOString()
+    });
+
+    const mappedData = response.data.data.map(t => {
+       const cp = counterparties.find(c => c.id === t.counterpartyId);
+       return {
+         id: t.id,
+         userId: user.username,
+         amount: t.amount,
+         date: t.transactionDate,
+         counterparty: cp ? cp.name : t.counterpartyId 
+       };
+    });
+
+    return {
+      currentPage: response.data.currentPage,
+      totalPages: response.data.totalPages,
+      pageSize,
+      data: mappedData
+    };
+  }, [transactionsClient, user, counterparties]);
+
+  const {
+    data: transactions,
+    currentPage,
+    totalPages,
+    pageSize,
+    hasNext,
+    hasPrevious,
+    handleNext,
+    handlePrevious,
+    loadPage,
+    setPageSize,
+    isLoading: isTransactionsLoading
+  } = usePagination<Transaction>({
+    currentPage: 1,
+    totalPages: 0,
+    pageSize: 10,
+    data: []
+  }, pageProvider);
+
   const handleScroll: UIEventHandler<HTMLDivElement> = (event) => {    
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
     if (scrollHeight - scrollTop <= clientHeight + 10) {
@@ -73,47 +127,17 @@ export function TransactionsContainer() {
     fetchInitialCounterparties(query);
   };
 
-  const loadTransactions = useCallback(async (currentCounterparties: CounterpartyListItem[]) => {
-    if (!user) return;
-
-    try {
-      const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-
-      const response = await transactionsClient.get({
-        startDate: startOfMonth.toISOString(),
-        endDate: endOfDay.toISOString()
-      });
-
-      const mappedTransactions = response.data.map(t => {
-        const cp = currentCounterparties.find(c => c.id === t.counterpartyId);
-        return {
-          id: t.id,
-          userId: user.username,
-          amount: t.amount,
-          date: t.transactionDate,
-          counterparty: cp ? cp.name : t.counterpartyId 
-        };
-      });
-
-      mappedTransactions.sort((a, b) =>
-        new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-
-      setTransactions(mappedTransactions);
-    } catch (err) {
-      console.error('Failed to load transactions', err);
-    }
-  }, [user, transactionsClient]);
-
   useEffect(() => {
     if (user) {
-      fetchInitialCounterparties('').then(cps => {
-        loadTransactions(cps);
-      });
+      fetchInitialCounterparties('');
     }
-  }, [user, fetchInitialCounterparties, loadTransactions]);
+  }, [user, fetchInitialCounterparties]);
+
+  useEffect(() => {
+    if (user && counterparties.length > 0) {
+      loadPage();
+    }
+  }, [user, counterparties.length, loadPage]);
 
   const handleSubmit = async (data: TransactionFormData) => {
     if (!user) return;
@@ -126,7 +150,7 @@ export function TransactionsContainer() {
       });
 
       setShowForm(false);
-      loadTransactions(counterparties);
+      loadPage();
     } catch (err) {
       console.error('Failed to create transaction', err);
     }
@@ -155,6 +179,15 @@ export function TransactionsContainer() {
       }
       onToggleForm={toggleForm}
       onDelete={handleDelete}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      pageSize={pageSize}
+      onNextPage={handleNext}
+      onPreviousPage={handlePrevious}
+      onPageSizeChange={setPageSize}
+      hasNext={hasNext}
+      hasPrevious={hasPrevious}
+      isLoading={isTransactionsLoading}
     />
   );
 }
