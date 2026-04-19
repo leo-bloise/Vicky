@@ -71,4 +71,27 @@ public class TransactionController(
 
         return Ok(ApiResponse<object>.SuccessResponse(response, "Transactions retrieved successfully"));
     }
+
+    [HttpGet("paged")]
+    public IActionResult GetPaged([FromQuery] GetTransactionsPagedRequest request)
+    {
+        User? user = jwtTokenService.Adapt(new ClaimsPrincipalAdapter(User));
+
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        GetTransactionsPagedQuery query = new(
+            user.Id,
+            request.PageNumber,
+            request.PageSize,
+            request.StartDate,
+            request.EndDate
+        );
+
+        PagedResult<Transaction> result = queryDispatcher.Dispatch<GetTransactionsPagedQuery, PagedResult<Transaction>>(query);
+
+        return Ok(ApiResponse<PagedResult<Transaction>>.SuccessResponse(result, "Transactions retrieved successfully"));
+    }
 }
