@@ -1,4 +1,5 @@
 import { Trash2, TrendingUp, TrendingDown } from 'lucide-react';
+import { formatDate } from '../../utils/formatDate';
 
 interface Transaction {
   id: string;
@@ -19,14 +20,6 @@ export function TransactionList({ transactions, onDelete }: TransactionListProps
       style: 'currency',
       currency: 'USD',
     }).format(Math.abs(amount));
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
   };
 
   if (transactions.length === 0) {

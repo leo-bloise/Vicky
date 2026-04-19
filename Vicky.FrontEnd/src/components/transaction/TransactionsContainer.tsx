@@ -110,7 +110,7 @@ export function TransactionsContainer() {
   } = usePagination<Transaction>({
     currentPage: 1,
     totalPages: 0,
-    pageSize: 10,
+    pageSize: 5,
     data: []
   }, pageProvider);
 

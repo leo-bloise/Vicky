@@ -149,3 +149,9 @@ export function useCounterpartiesClient() {
   
   return clientFactory.createCounterpartiesClient();
 }
+
+export function useReportClient() {
+  const { clientFactory } = useAuth();
+  
+  return clientFactory.createReportClient();
+}

@@ -54,6 +54,9 @@ public class Program
         
         builder.Services
             .AddScoped<IQueryHandler<GetCounterpartiesPagedQueryWithCursor, CursorResult<Counterparty>>, GetCounterpartiesPagedQueryWithCursorHandler>();
+            
+        builder.Services
+            .AddScoped<IQueryHandler<GetMonthReport, Report>, QueryMonthReportHandler>();
 
         builder.Services
             .AddScoped<DatabaseContext>();

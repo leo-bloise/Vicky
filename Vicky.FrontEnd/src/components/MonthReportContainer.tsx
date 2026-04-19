@@ -1,14 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, useReportClient } from '../contexts/AuthContext';
 import { MonthReport } from './MonthReport';
-
-interface Transaction {
-  id: string;
-  userId: string;
-  amount: number;
-  date: string;
-  counterparty: string;
-}
+import { formatDate } from '../utils/formatDate';
 
 interface ChartData {
   date: string;
@@ -17,69 +10,57 @@ interface ChartData {
 
 export function MonthReportContainer() {
   const { state: { user } } = useAuth();
+  const reportClient = useReportClient();
   const [incoming, setIncoming] = useState(0);
   const [outgoing, setOutgoing] = useState(0);
   const [balance, setBalance] = useState(0);
   const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadMonthData();
+    if (user) {
+      loadMonthData();
+    }
   }, [user]);
 
-  const loadMonthData = () => {
-    const all = JSON.parse(localStorage.getItem('vickyTransactions') || '[]');
-    const userTransactions: Transaction[] = all.filter((t: Transaction) => t.userId === user?.username);
+  const loadMonthData = async () => {
+    setIsLoading(true);
+    try {
+      const now = new Date();
+      const currentMonth = now.getMonth() + 1; // JS months are 0-indexed
+      const currentYear = now.getFullYear();
 
-    // Get current month and year
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
+      const response = await reportClient.calculate({
+        month: currentMonth,
+        year: currentYear
+      });
 
-    // Filter transactions for current month
-    const monthTransactions = userTransactions.filter((t) => {
-      const date = new Date(t.date);
-      return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
-    });
+      if (response.success && response.data) {
+        const report = response.data;
+        setIncoming(report.incoming);
+        setOutgoing(Math.abs(report.outgoing));
+        setBalance(report.balance);
+        // Prepare chart data from transactionsByDate
+        const chartArray: ChartData[] = Object.entries(report.transactionsByDate).map(([date, transactions]) => ({
+          date,
+          count: transactions.length,
+        }));
 
-    // Calculate incoming and outgoing
-    let totalIncoming = 0;
-    let totalOutgoing = 0;
+        chartArray.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    monthTransactions.forEach((t) => {
-      if (t.amount > 0) {
-        totalIncoming += t.amount;
-      } else {
-        totalOutgoing += Math.abs(t.amount);
+        // Format dates for display
+        const formattedChartData = chartArray.map((item) => ({
+          date: formatDate(item.date),
+          count: item.count,
+        }));
+
+        setChartData(formattedChartData);
       }
-    });
-
-    setIncoming(totalIncoming);
-    setOutgoing(totalOutgoing);
-    setBalance(totalIncoming - totalOutgoing);
-
-    // Prepare chart data - count transactions per day
-    const transactionsByDate: { [key: string]: number } = {};
-
-    monthTransactions.forEach((t) => {
-      const dateKey = t.date;
-      transactionsByDate[dateKey] = (transactionsByDate[dateKey] || 0) + 1;
-    });
-
-    // Convert to array and sort by date
-    const chartArray: ChartData[] = Object.entries(transactionsByDate).map(([date, count]) => ({
-      date,
-      count,
-    }));
-
-    chartArray.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    // Format dates for display
-    const formattedChartData = chartArray.map((item) => ({
-      date: new Date(item.date).toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' }),
-      count: item.count,
-    }));
-
-    setChartData(formattedChartData);
+    } catch (error) {
+      console.error("Failed to load report data", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -101,7 +82,11 @@ export function MonthReportContainer() {
     return 'bg-green-50 border-green-200';
   };
 
-  const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const currentMonthName = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-64">Loading report...</div>;
+  }
 
   return (
     <MonthReport
@@ -109,7 +94,7 @@ export function MonthReportContainer() {
       outgoing={outgoing}
       balance={balance}
       chartData={chartData}
-      currentMonth={currentMonth}
+      currentMonth={currentMonthName}
       formatCurrency={formatCurrency}
       getBalanceColor={getBalanceColor}
       getBalanceBackground={getBalanceBackground}
