@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Vicky.API.Infra.Services;
@@ -49,6 +50,23 @@ public class UserController: ControllerBase
         SetCookie(token);
 
         return Ok(ApiResponse<object?>.SuccessResponse(null, "Logged in successfully"));
+    }
+
+    [HttpPost("logout")]
+    [Authorize]
+    public IActionResult Logout()
+    {
+        CookieOptions cookieOptions = new CookieOptions()
+        {
+            HttpOnly = true,
+            Secure = _environment.IsProduction(),
+            SameSite = _environment.IsProduction() ? SameSiteMode.None : SameSiteMode.Lax,
+            Path = "/"
+        };
+
+        Response.Cookies.Delete("access_token", cookieOptions);
+
+        return Ok();
     }
 
     private void SetCookie(Token token)

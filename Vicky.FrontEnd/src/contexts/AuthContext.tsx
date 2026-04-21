@@ -37,8 +37,8 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
   const clientFactory = new ClientFactory(import.meta.env.VITE_API_URL || 'http://localhost:8080');
-  const authorizationClient = clientFactory.createAuthorizationClient();
-  
+  const authorizationClient = clientFactory.createAuthorizationClient();  
+
   useEffect(() => {
 
     const fetchProfile = async () => {
@@ -46,7 +46,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const profile = await authorizationClient.getProfile() as ProfileResponseData;
         dispatch({ type: AuthActionType.SET_USER, payload: profile });
       } catch (error) {
-        localStorage.removeItem('vickyToken');
         dispatch({ type: AuthActionType.SET_ERROR, payload: 'Session expired. Please log in again.' });
       } finally {
         dispatch({ type: AuthActionType.SET_LOADING, payload: false })
@@ -94,7 +93,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    dispatch({ type: AuthActionType.LOGOUT });
+    authorizationClient.logout()
+      .then(() => {
+        dispatch({ type: AuthActionType.LOGOUT });
+      });
   };
 
   return (

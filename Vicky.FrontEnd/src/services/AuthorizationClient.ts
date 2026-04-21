@@ -36,6 +36,16 @@ export class AuthorizationClient extends BaseClient {
         return data as SuccessResponse<null>;
     }
 
+    public async logout(): Promise<null> {
+        const response = await this.post(`${this.baseUrl}/user/logout`, '');
+
+        if(response.status !== 200) {
+            this.errorHandler.handle(response, null);
+        }
+
+        return null;
+    }
+
     public async getProfile() {
         const response = await this.get(`${this.baseUrl}/profile/me`);
 
