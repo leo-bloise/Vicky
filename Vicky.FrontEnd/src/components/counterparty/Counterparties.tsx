@@ -42,7 +42,7 @@ export function Counterparties() {
       name: debouncedSearchQuery
     };
 
-    const response = await counterpartiesClient.get(request);
+    const response = await counterpartiesClient.getCounterparties(request);
     const { data } = response;
     
     return {

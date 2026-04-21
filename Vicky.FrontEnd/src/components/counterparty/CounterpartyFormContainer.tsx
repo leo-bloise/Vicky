@@ -31,7 +31,7 @@ export function CounterpartyFormContainer({ onSubmit, onCancel, disabled = false
   const onFormSubmit = handleSubmit(async (data) => {
     try {
       await onSubmit(data);
-      reset(); // Only reset on successful submission
+      reset();
     } catch (error) {
       // Don't reset on error - let the user correct and try again
     }

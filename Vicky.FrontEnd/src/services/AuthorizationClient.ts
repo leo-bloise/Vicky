@@ -1,7 +1,6 @@
 import type { RegisterRequest } from "./requests/register-request";
 import type { LoginRequest } from "./requests/login-request";
 import type { SuccessResponse } from "./responses/success-response";
-import type { LoginResponseData } from "./responses/login-response";
 import type { RegisterResponseData } from "./responses/register-response";
 import { ApiErrorHandler } from "./api-error-handler";
 import { BaseClient } from "./BaseClient";
@@ -13,13 +12,7 @@ export class AuthorizationClient extends BaseClient {
     }
 
     public async register(request: RegisterRequest): Promise<SuccessResponse<RegisterResponseData>> {
-        const url = `${this.baseUrl}/user/register`;
-
-        const response = await fetch(url, {
-            method: 'POST',
-            body: JSON.stringify(request),
-            headers: this.headers
-        });
+        const response = await this.post(`${this.baseUrl}/user/register`, JSON.stringify(request));
 
         const data = await this.tryParse(response);
 
@@ -31,14 +24,8 @@ export class AuthorizationClient extends BaseClient {
         return result;
     }
 
-    public async login(request: LoginRequest): Promise<SuccessResponse<LoginResponseData>> {
-        const url = `${this.baseUrl}/user/login`;
-
-        const response = await fetch(url, {
-            method: 'POST',
-            body: JSON.stringify(request),
-            headers: this.headers
-        });
+    public async login(request: LoginRequest): Promise<SuccessResponse<null>> {
+        const response = await this.post(`${this.baseUrl}/user/login`, JSON.stringify(request));
 
         const data = await this.tryParse(response);
 
@@ -46,22 +33,11 @@ export class AuthorizationClient extends BaseClient {
             this.errorHandler.handle(response, data);
         }
 
-        const result = data as SuccessResponse<LoginResponseData>;
-        console.log(result);
-        this.token = result.data.token.payload;
-        localStorage.setItem('vickyToken', this.token);
-        this.updateAuthHeader();
-
-        return result;
+        return data as SuccessResponse<null>;
     }
 
     public async getProfile() {
-        const url = `${this.baseUrl}/profile/me`;
-
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: this.headers
-        });
+        const response = await this.get(`${this.baseUrl}/profile/me`);
 
         const payload = await this.tryParse(response);
 
@@ -70,9 +46,5 @@ export class AuthorizationClient extends BaseClient {
         }        
 
         return (payload as SuccessResponse<{id: string, username: string}>).data;
-    }
-
-    public getToken(): string | null {
-        return this.token;
     }
 }

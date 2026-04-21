@@ -2,10 +2,8 @@ import { BaseClient } from "../BaseClient";
 import type { ApiErrorHandler } from "../api-error-handler";
 import type { 
   GetTransactionsPagedRequest, 
-  GetTransactionsPagedResponse,
-  TransactionListItem
+  GetTransactionsPagedResponse
 } from "./types";
-import type { SuccessResponse } from "../responses/success-response";
 
 export interface CreateTransactionRequest {
   amount: number;
@@ -37,13 +35,7 @@ export class TransactionsClient extends BaseClient {
   }
 
   public async create(request: CreateTransactionRequest): Promise<ApiResponse<TransactionResponse>> {
-    const url = `${this.baseUrl}/transaction`;
-
-    const response = await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify(request),
-      headers: this.headers
-    });
+    const response = await this.post(`${this.baseUrl}/transaction`, JSON.stringify(request));
 
     const data = await this.tryParse(response);
 
@@ -54,15 +46,13 @@ export class TransactionsClient extends BaseClient {
     return data as ApiResponse<TransactionResponse>;
   }
 
-  public async get(request: GetTransactionsRequest): Promise<ApiResponse<TransactionResponse[]>> {
+  public async getTransactions(request: GetTransactionsRequest): Promise<ApiResponse<TransactionResponse[]>> {
     const url = new URL(`${this.baseUrl}/transaction`);
+
     url.searchParams.append('startDate', request.startDate);
     url.searchParams.append('endDate', request.endDate);
 
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers: this.headers
-    });
+    const response = await this.get(url.toString());
 
     const data = await this.tryParse(response);
 
@@ -75,15 +65,13 @@ export class TransactionsClient extends BaseClient {
 
   public async getPaged(request: GetTransactionsPagedRequest): Promise<GetTransactionsPagedResponse> {
     const url = new URL(`${this.baseUrl}/transaction/paged`);
+    
     url.searchParams.append('pageNumber', request.pageNumber.toString());
     url.searchParams.append('pageSize', request.pageSize.toString());
     url.searchParams.append('startDate', request.startDate);
     url.searchParams.append('endDate', request.endDate);
 
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers: this.headers
-    });
+    const response = await this.get(url.toString());
 
     const data = await this.tryParse(response);
 

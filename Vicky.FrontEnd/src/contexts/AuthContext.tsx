@@ -2,7 +2,6 @@ import { createContext, useContext, useReducer, useEffect, useCallback } from 'r
 import type { ReactNode } from 'react';
 import { AuthActionType } from './types/auth-types';
 import type { AuthState, AuthAction, AuthContextType } from './types/auth-types';
-import { AuthorizationClient } from '../services/AuthorizationClient';
 import { ClientFactory } from '../services/ClientFactory';
 import type { LoginRequest } from '../services/requests/login-request';
 import type { RegisterRequest } from '../services/requests/register-request';
@@ -41,16 +40,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const authorizationClient = clientFactory.createAuthorizationClient();
   
   useEffect(() => {
-    const token = localStorage.getItem('vickyToken');
-
-    if (!token) {
-      dispatch({ type: AuthActionType.SET_LOADING, payload: false });
-      return;
-    }
-
-    clientFactory.setToken(token);
-
-    authorizationClient.setToken(token);
 
     const fetchProfile = async () => {
       try {
@@ -59,7 +48,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         localStorage.removeItem('vickyToken');
         dispatch({ type: AuthActionType.SET_ERROR, payload: 'Session expired. Please log in again.' });
-        clientFactory.setToken(null);
       } finally {
         dispatch({ type: AuthActionType.SET_LOADING, payload: false })
       }
@@ -95,31 +83,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const request: LoginRequest = { username, password };
-      const response = await authorizationClient.login(request);
-      const token = response.data.token.payload;
-  
-      authorizationClient.setToken(token);
-      clientFactory.setToken(token);
-      localStorage.setItem('vickyToken', token);
-  
+      await authorizationClient.login(request);
       dispatch({ type: AuthActionType.LOGIN_SUCCESS, payload: { id: username, username } });
-  
       return true;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
-  
       dispatch({ type: AuthActionType.LOGIN_FAILURE, payload: errorMessage });
-  
       return false;
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('vickyToken');
-  
-    authorizationClient.setToken('');
-    clientFactory.setToken(null);
-  
     dispatch({ type: AuthActionType.LOGOUT });
   };
 
