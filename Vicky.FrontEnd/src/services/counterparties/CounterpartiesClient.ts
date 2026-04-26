@@ -11,14 +11,10 @@ export class CounterpartiesClient extends BaseClient {
         super(baseUrl, errorHandler);
     }
 
-    public async create(request: CreateCounterpartyRequest): Promise<SuccessResponse<CounterpartyResponse>> {
-        const url = `${this.baseUrl}/counterparty`;
+    public async create(request: CreateCounterpartyRequest): Promise<SuccessResponse<CounterpartyResponse>> {        
+        const csrfToken = await this.getCsrfToken();
 
-        const response = await fetch(url, {
-            method: 'POST',
-            body: JSON.stringify(request),
-            headers: this.headers
-        });
+        const response = await this.post(`${this.baseUrl}/counterparty`, JSON.stringify(request), undefined, csrfToken);
 
         const data = await this.tryParse(response);
 
@@ -30,20 +26,19 @@ export class CounterpartiesClient extends BaseClient {
         return result;
     }
 
-    public async get(request: GetCounterpartiesRequest): Promise<GetCounterpartiesResponse> {
+    public async getCounterparties(request: GetCounterpartiesRequest): Promise<GetCounterpartiesResponse> {
         const url = new URL(`${this.baseUrl}/counterparty`);
+        
         url.searchParams.append('pageNumber', request.pageNumber.toString());
         url.searchParams.append('pageSize', request.pageSize.toString());
         url.searchParams.append('startDate', request.startDate);
         url.searchParams.append('endDate', request.endDate);
+
         if (request.name) {
             url.searchParams.append('name', request.name);
         }
 
-        const response = await fetch(url.toString(), {
-            method: 'GET',
-            headers: this.headers
-        });
+        const response = await this.get(url.toString());
 
         const data = await this.tryParse(response);
 
@@ -56,6 +51,7 @@ export class CounterpartiesClient extends BaseClient {
 
     public async getCursor(request: GetCounterpartiesByCursorRequest): Promise<GetCounterpartiesByCursorResponse> {
         const url = new URL(`${this.baseUrl}/counterparty/cursor`);
+        
         if (request.limit) {
             url.searchParams.append('limit', request.limit.toString());
         }
@@ -66,10 +62,7 @@ export class CounterpartiesClient extends BaseClient {
             url.searchParams.append('name', request.name);
         }
 
-        const response = await fetch(url.toString(), {
-            method: 'GET',
-            headers: this.headers
-        });
+        const response = await this.get(url.toString());
 
         const data = await this.tryParse(response);
 
