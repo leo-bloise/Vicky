@@ -6,7 +6,6 @@ import { ApiErrorHandler } from "./api-error-handler";
 import { BaseClient } from "./BaseClient";
 
 export class AuthorizationClient extends BaseClient {
-
     constructor(baseUrl: string, errorHandler?: ApiErrorHandler) {
         super(baseUrl, errorHandler);
     }
@@ -37,6 +36,8 @@ export class AuthorizationClient extends BaseClient {
     }
 
     public async logout(): Promise<null> {
+        cookieStore.delete('CSRF-TOKEN');
+
         const response = await this.post(`${this.baseUrl}/user/logout`, '');
 
         if(response.status !== 200) {

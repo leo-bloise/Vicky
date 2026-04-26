@@ -12,7 +12,9 @@ export class CounterpartiesClient extends BaseClient {
     }
 
     public async create(request: CreateCounterpartyRequest): Promise<SuccessResponse<CounterpartyResponse>> {        
-        const response = await this.post(`${this.baseUrl}/counterparty`, JSON.stringify(request));
+        const csrfToken = await this.getCsrfToken();
+
+        const response = await this.post(`${this.baseUrl}/counterparty`, JSON.stringify(request), undefined, csrfToken);
 
         const data = await this.tryParse(response);
 

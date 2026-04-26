@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Vicky.API.Infra.Filters;
 using Vicky.API.Infra.Services;
 using Vicky.Common;
 using Vicky.Users;
@@ -18,17 +20,21 @@ public class UserController: ControllerBase
 
     private readonly IOptions<JwtOptions> _options;
 
-    public UserController(CommandDispatcher commandDispatcher, IWebHostEnvironment environment, IOptions<JwtOptions> options)
+    private readonly IAntiforgery _antiforgery;
+
+    public UserController(CommandDispatcher commandDispatcher, IWebHostEnvironment environment, IOptions<JwtOptions> options, IAntiforgery antiforgery)
     {
         _commandDispatcher = commandDispatcher;
         _environment = environment;
         _options = options;
+        _antiforgery = antiforgery;
     }
 
     [HttpPost("register")]
+    [IgnoreCsrfToken]
     public IActionResult Register([FromBody] RegisterUserRequest request)
     {
-        CreateUserCommand command = new CreateUserCommand(request.Username, request.Password);
+        CreateUserCommand command = new(request.Username, request.Password);
         User user = _commandDispatcher.Dispatch<CreateUserCommand, User>(command);
 
         var userResponse = new
@@ -41,9 +47,10 @@ public class UserController: ControllerBase
     }
 
     [HttpPost("login")]
+    [IgnoreCsrfToken]
     public IActionResult Login([FromBody] LoginUserRequest request) 
     {
-        LoginUserCommand command = new LoginUserCommand(request.Username, request.Password);
+        LoginUserCommand command = new(request.Username, request.Password);
 
         Token token = _commandDispatcher.Dispatch<LoginUserCommand, Token>(command);
 
@@ -56,7 +63,7 @@ public class UserController: ControllerBase
     [Authorize]
     public IActionResult Logout()
     {
-        CookieOptions cookieOptions = new CookieOptions()
+        CookieOptions cookieOptions = new()
         {
             HttpOnly = true,
             Secure = _environment.IsProduction(),
@@ -74,8 +81,8 @@ public class UserController: ControllerBase
         CookieOptions cookieOptions = new CookieOptions()
         {
             HttpOnly = true,
-            Secure = _environment.IsProduction(),
-            SameSite = _environment.IsProduction() ? SameSiteMode.None : SameSiteMode.Lax,
+            Secure = _environment.IsProduction() && !_environment.IsStaging(),
+            SameSite = _environment.IsProduction() && !_environment.IsStaging() ? SameSiteMode.None : SameSiteMode.Lax,
             Expires = DateTimeOffset.UtcNow.AddHours(_options.Value.ExpirationHours),
             Path = "/"
         };

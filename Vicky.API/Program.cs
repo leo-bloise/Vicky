@@ -80,6 +80,24 @@ public class Program
         builder
             .ConfigureCors();
 
+        builder.Services
+            .AddAntiforgery(options =>
+            {
+                options.HeaderName = "X-CSRF-TOKEN";
+                options.Cookie.Name = "CSRF-TOKEN";
+                options.Cookie.HttpOnly = false;
+
+                if(builder.Environment.IsProduction())
+                {
+                    options.Cookie.SameSite = SameSiteMode.None;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                } else
+                {
+                    options.Cookie.SameSite = SameSiteMode.Lax;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                }
+            });
+
         WebApplication app = builder.Build();
 
         app.UseMiddleware<TraceIdLoggingMiddleware>();

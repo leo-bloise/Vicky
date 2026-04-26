@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Vicky.API.Infra.Filters;
 
 namespace Vicky.API.Infra;
 
@@ -10,6 +11,7 @@ public static class ValidationErrorResponseExtensions
             .AddControllers(options =>
             {
                 options.Filters.Add<DomainExceptionFilter>();
+                options.Filters.Add<ValidateCsrfTokenFilter>();
             })
             .ConfigureApiBehaviorOptions(options =>
             {

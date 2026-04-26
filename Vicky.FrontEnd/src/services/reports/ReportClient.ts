@@ -19,7 +19,9 @@ export class ReportClient extends BaseClient {
   }
 
   public async calculate(request: CalculateReportRequest): Promise<ApiResponse<Report>> {
-    const response = await this.post(`${this.baseUrl}/report/calculate`, JSON.stringify(request));
+    const csrfToken = await this.getCsrfToken();
+
+    const response = await this.post(`${this.baseUrl}/report/calculate`, JSON.stringify(request), undefined, csrfToken);
 
     const data = (await this.tryParse(response)) as ApiResponse<Report>;
 

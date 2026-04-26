@@ -1,4 +1,5 @@
 import { ApiErrorHandler } from "./api-error-handler";
+import type { SuccessResponse } from "./responses/success-response";
 
 export abstract class BaseClient {
     protected readonly baseUrl: string;
@@ -11,9 +12,22 @@ export abstract class BaseClient {
         this.headers = this.createDefaultHeaders();
     }
 
+    protected async getCsrfToken(): Promise<string> {
+        const response = await this.post(`${this.baseUrl}/CsrfToken`, '');
+
+        const data = await this.tryParse(response);
+
+        if(response.status != 201) {
+            this.errorHandler.handle(response, data);
+        }
+
+        return (data as SuccessResponse<string>).data;
+    }
+
     protected createDefaultHeaders(): HeadersInit {
         const headers = new Headers();
-        headers.append('Content-Type', 'application/json');
+        headers.append('Content-Type', 'application/json');        
+        
         return headers;
     }
 
@@ -25,9 +39,13 @@ export abstract class BaseClient {
         }
     }
 
-    protected buildBaseRequest(): RequestInit {
+    protected buildBaseRequest(csrfToken?: string): RequestInit {
+        const headers = new Headers(this.headers);
+
+        if(csrfToken) headers.append('X-CSRF-TOKEN', csrfToken);
+        
         return {
-            headers: this.createDefaultHeaders(),
+            headers,
             credentials: 'include'
         };
     }
@@ -37,12 +55,12 @@ export abstract class BaseClient {
             ...this.buildBaseRequest(),
             ...requestInit
         })
-    }
+    }    
     
-    protected post(url: string, body: string, request: RequestInit = {}) {
+    protected post(url: string, body: string, request: RequestInit = {}, csrfToken?: string) {
         return fetch(url, {
             ...request,
-            ...this.buildBaseRequest(),
+            ...this.buildBaseRequest(csrfToken),
             method: 'POST',
             body
         })

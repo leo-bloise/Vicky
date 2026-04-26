@@ -35,7 +35,9 @@ export class TransactionsClient extends BaseClient {
   }
 
   public async create(request: CreateTransactionRequest): Promise<ApiResponse<TransactionResponse>> {
-    const response = await this.post(`${this.baseUrl}/transaction`, JSON.stringify(request));
+    const csrfToken = await this.getCsrfToken();
+
+    const response = await this.post(`${this.baseUrl}/transaction`, JSON.stringify(request), undefined, csrfToken);
 
     const data = await this.tryParse(response);
 
