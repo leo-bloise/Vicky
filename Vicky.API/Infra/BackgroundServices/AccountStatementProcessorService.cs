@@ -49,19 +49,16 @@ public class AccountStatementProcessorService : BackgroundService
 
                     await foreach (var statement in reader.ReadAsync(message.FilePath, message.Provider).WithCancellation(stoppingToken))
                     {
-                        // For now, just log them as per Phase 2
                         _logger.LogInformation("Processed statement: {Date} - {Amount} - {Description}", 
                             statement.TransactionDate, statement.Amount, statement.Description);
                     }
-
-                    // Optionally delete file after processing
-                    // storage.Delete(message.FilePath);
                 }
 
                 _logger.LogInformation("Finished job {JobId}", message.JobId);
             }
             catch (OperationCanceledException)
             {
+                _logger.LogError("Operation canceled");
                 break;
             }
             catch (Exception ex)
