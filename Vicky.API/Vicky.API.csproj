@@ -18,6 +18,7 @@
     <ProjectReference Include="..\Vicky.Common\Vicky.Common.csproj" />
     <ProjectReference Include="..\Vicky.Ledger\Vicky.Ledger.csproj" />
     <ProjectReference Include="..\Vicky.Users\Vicky.Users.csproj" />
+    <ProjectReference Include="..\Vicky.ObjectStorage\Vicky.ObjectStorage.csproj" />
   </ItemGroup>
 
 </Project>

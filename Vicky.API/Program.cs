@@ -1,9 +1,11 @@
 using Microsoft.Extensions.Logging.Console;
 using Vicky.API.Infra;
+using Vicky.API.Infra.BackgroundServices;
 using Vicky.API.Infra.Implementations;
 using Vicky.API.Infra.Services;
 using Vicky.Common;
 using Vicky.Ledger;
+using Vicky.ObjectStorage;
 using Vicky.Ledger.Commands;
 using Vicky.Ledger.Handlers;
 using Vicky.Ledger.Queries;
@@ -68,6 +70,11 @@ public class Program
             .AddScoped<IUserRepository, UserRepository>();
         builder.Services
             .AddScoped<ICryptoService, CryptoService>();
+
+        builder.Services.AddSingleton<AccountStatementProcessorService>();
+        builder.Services.AddHostedService(sp => sp.GetRequiredService<AccountStatementProcessorService>());
+        builder.Services.AddScoped<IObjectStorage, LocalObjectStorage>();
+        builder.Services.AddScoped<IAccountStatementStreamReader, AccountStatementStreamReader>();
 
         builder
             .AddJwtAuthentication();
