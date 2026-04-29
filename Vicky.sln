@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vicky.API", "Vicky.API\Vick
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vicky.ObjectStorage", "Vicky.ObjectStorage\Vicky.ObjectStorage.csproj", "{669B2EDD-4D79-4885-AA10-9160237E49CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vicky.AccountStatement", "Vicky.AccountStatement\Vicky.AccountStatement.csproj", "{07081E77-A230-4218-9C59-474411387E85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,18 @@ Global
 		{669B2EDD-4D79-4885-AA10-9160237E49CF}.Release|x64.Build.0 = Release|Any CPU
 		{669B2EDD-4D79-4885-AA10-9160237E49CF}.Release|x86.ActiveCfg = Release|Any CPU
 		{669B2EDD-4D79-4885-AA10-9160237E49CF}.Release|x86.Build.0 = Release|Any CPU
+		{07081E77-A230-4218-9C59-474411387E85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07081E77-A230-4218-9C59-474411387E85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07081E77-A230-4218-9C59-474411387E85}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{07081E77-A230-4218-9C59-474411387E85}.Debug|x64.Build.0 = Debug|Any CPU
+		{07081E77-A230-4218-9C59-474411387E85}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{07081E77-A230-4218-9C59-474411387E85}.Debug|x86.Build.0 = Debug|Any CPU
+		{07081E77-A230-4218-9C59-474411387E85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07081E77-A230-4218-9C59-474411387E85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07081E77-A230-4218-9C59-474411387E85}.Release|x64.ActiveCfg = Release|Any CPU
+		{07081E77-A230-4218-9C59-474411387E85}.Release|x64.Build.0 = Release|Any CPU
+		{07081E77-A230-4218-9C59-474411387E85}.Release|x86.ActiveCfg = Release|Any CPU
+		{07081E77-A230-4218-9C59-474411387E85}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

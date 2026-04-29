@@ -1,31 +1,33 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Vicky.AccountStatement.AccountStatements;
 using Vicky.API.Infra.BackgroundServices;
+using Vicky.API.Infra.Filters;
+using Vicky.API.Infra.Implementations;
 using Vicky.Common;
-using Vicky.Ledger;
 using Vicky.ObjectStorage;
 using Vicky.Users;
-using Vicky.Users.Adapter;
+using Vicky.Users.Services;
 
 namespace Vicky.API.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class AccountStatementController : ControllerBase
 {
     private readonly IObjectStorage _objectStorage;
     private readonly AccountStatementProcessorService _processorService;
-    private readonly IClaimsPrincipalAdapter _claimsPrincipalAdapter;
+    private readonly IJwtTokenService _jwtTokenService;
 
     public AccountStatementController(
         IObjectStorage objectStorage,
         AccountStatementProcessorService processorService,
-        IClaimsPrincipalAdapter claimsPrincipalAdapter)
+        IJwtTokenService jwtTokenService)
     {
         _objectStorage = objectStorage;
         _processorService = processorService;
-        _claimsPrincipalAdapter = claimsPrincipalAdapter;
+        _jwtTokenService = jwtTokenService;
     }
 
     [HttpPost("{provider}")]
@@ -42,7 +44,7 @@ public class AccountStatementController : ControllerBase
         }
 
         var jobId = Guid.NewGuid();
-        var user = _claimsPrincipalAdapter.Adapt();
+        User? user = _jwtTokenService.Adapt(new ClaimsPrincipalAdapter(User));
         if (user == null) return Unauthorized();
         var userId = user.Id;
 

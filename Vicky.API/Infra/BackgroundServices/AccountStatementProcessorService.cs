@@ -1,6 +1,8 @@
 using System.Threading.Channels;
-using Vicky.Ledger;
+using Vicky.AccountStatement.AccountStatements;
+using Vicky.Common;
 using Vicky.ObjectStorage;
+using Vicky.Users.Services;
 
 namespace Vicky.API.Infra.BackgroundServices;
 
@@ -13,14 +15,14 @@ public record AccountStatementMessage(
 public class AccountStatementProcessorService : BackgroundService
 {
     private readonly Channel<AccountStatementMessage> _channel;
-    private readonly ILogger<AccountStatementProcessorService> _logger;
+    private readonly IVickyLogger<AccountStatementProcessorService> _logger;
     private readonly IServiceProvider _serviceProvider;
 
     public AccountStatementProcessorService(
-        ILogger<AccountStatementProcessorService> logger,
+        IVickyLoggerFactory vickyLoggerFactory,
         IServiceProvider serviceProvider)
     {
-        _logger = logger;
+        _logger = vickyLoggerFactory.CreateLogger<AccountStatementProcessorService>();
         _serviceProvider = serviceProvider;
         _channel = Channel.CreateUnbounded<AccountStatementMessage>();
     }

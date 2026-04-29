@@ -1,3 +1,6 @@
+using Vicky.AccountStatement;
+using Vicky.AccountStatement.AccountStatements;
+using Vicky.AccountStatement.AccountStatements.Nubank;
 using Vicky.Ledger;
 using Vicky.ObjectStorage;
 

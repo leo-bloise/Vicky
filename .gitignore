@@ -4,6 +4,7 @@ obj/
 out/
 [Dd]ebug/
 [Rr]elease/
+uploads/
 
 # User-specific files
 *.rsuser
